@@ -1,10 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class GetRequest : MonoBehaviour
 {
+    [Header("Events")]
+    public UnityEvent whenWaiting;
+    public UnityEvent onConfirmation;
+
     public static GetRequest instance;
 
     private void OnEnable()
@@ -20,6 +25,7 @@ public class GetRequest : MonoBehaviour
     }
     public IEnumerator WaitForRequest(UnityWebRequest www)
     {
+        whenWaiting.Invoke();
         yield return www.SendWebRequest();
 
         if (www.error != null)
@@ -29,7 +35,8 @@ public class GetRequest : MonoBehaviour
         else
         {
             Debug.Log("Form upload complete!");
-            ResponseRequest.TreatResponse(www.downloadHandler.text);
+            onConfirmation.Invoke();
+            ConfirmationRequest.instance.TreatResponse(www.downloadHandler.text);
 
         }
     }
