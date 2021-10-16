@@ -220,6 +220,7 @@ GameObject:
   - component: {fileID: 3255345726414844090}
   - component: {fileID: 3255345726414844089}
   - component: {fileID: 3255345726414844088}
+  - component: {fileID: 7705205781811647883}
   m_Layer: 5
   m_Name: InputField
   m_TagString: Untagged
@@ -353,10 +354,32 @@ MonoBehaviour:
       m_Calls: []
   m_OnSelect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7705205781811647883}
+        m_MethodName: AnimateUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7705205781811647883}
+        m_MethodName: AnimateDown
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnTextSelection:
     m_PersistentCalls:
       m_Calls: []
@@ -384,6 +407,23 @@ MonoBehaviour:
   m_isRichTextEditingAllowed: 0
   m_LineLimit: 0
   m_InputValidator: {fileID: 0}
+--- !u!114 &7705205781811647883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3255345726414844094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e274b5aea95e6c4abdc49d62dc6960b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeAnimation: 0.25
+  maxSize: 1.2
+  currentMode: 0
+  currentState: 0
+  isMinSize1f: 0
 --- !u!1 &3255345726450069915
 GameObject:
   m_ObjectHideFlags: 0

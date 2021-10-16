@@ -7,7 +7,11 @@ using DG.Tweening;
 public class FormStructureManager : MonoBehaviour
 {
     [Header("Settings Animation Panel")]
+    [Range(0.5f,2f)]
+    [SerializeField] private float timeToBegin;
+    [Range(0.2f, 1.5f)]
     [SerializeField] private float timeFade;
+    [Range(0.2f, 1.5f)]
     [SerializeField] private float timeScale;
 
     [Header("Events")]
@@ -27,29 +31,45 @@ public class FormStructureManager : MonoBehaviour
     }
     private void Start()
     {
+        StartCoroutine(Initialize());
+    }
+    private IEnumerator Initialize()
+    {
+        yield return new WaitForSeconds(timeToBegin);
         StartForm();
     }
 
-    public void CloseForm()
-    {
-        ScaleDownPanel(formPanel, timeScale/5);
-    }
-    #region StartPanels
-    //-------------------START-PANEL-REGION---------------------
+    #region ControlPanel
+    //-------------------CONTROL-PANEL-REGION---------------------
     public void StartForm()
     {
         ScaleUpPanel(formPanel, timeScale);
         onStartForm.Invoke();
     }
+    public void CloseForm()
+    {
+        ScaleDownPanel(formPanel, timeScale / 5);
+    }
+
+
     public void StartLoading()
     {
         FadeInPanel(loadingPanel, timeFade);
         onLoading.Invoke();
     }
+    public void CloseLoading()
+    {
+        FadeOutPanel(loadingPanel, timeScale / 5);
+    }
+
     public void StartConfirmation()
     {
         FadeInPanel(confirmationPanel, timeFade);
         onConfirmation.Invoke();
+    }
+    public void CloseConfirmation()
+    {
+        FadeOutPanel(confirmationPanel, timeScale / 5);
     }
 
     #endregion

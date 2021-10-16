@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class FormManager : MonoBehaviour
 {
+    [SerializeField] private UnityEvent allInputChecked;
+
     [SerializeField] private string urlAPI;
     [SerializeField] private List<CustomInputField> inputs;
+
+    private int inputChecked;
 
     #region MatchPatternDeclaration
     public const string MatchEmailPattern =
@@ -47,6 +52,7 @@ public class FormManager : MonoBehaviour
                         TreatResult(TypeInput.Type.BIRTHDATE, CheckBirthdate(input.inputBox.text));
                     });
                     input.inputBox.onValueChanged.AddListener(delegate { BirthdateMask.instance.ValueChangeCheck(); });
+                    BirthdateMask.instance.onValidate.AddListener(AddInputChecked);
                     break;
             }
         }
@@ -58,7 +64,14 @@ public class FormManager : MonoBehaviour
             GetRequest.instance.Get(CreateLinkAPI());
         }
     }
-
+    public void AddInputChecked()
+    {
+        inputChecked++;
+        if (inputChecked >= 3)
+        {
+            allInputChecked.Invoke();
+        }
+    }
     private string CreateLinkAPI()
     {
         string s = "candidate=" + GetFullname().Split()[0].ToLower() + "&fullname=" + GetFullname() + "&email=" + GetEmail() + "&birthdate=" + GetBirthdate();
@@ -161,7 +174,7 @@ public class FormManager : MonoBehaviour
         switch (result)
         {
             case Result.OK:
-                Debug.Log(type + " está ok");
+                AddInputChecked();
                 NotificationValid(type);
                 break;
             case Result.INCOMPLETE:

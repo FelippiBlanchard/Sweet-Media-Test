@@ -10,7 +10,7 @@ public class BirthdateMask : MonoBehaviour
 {
     [SerializeField] private TMP_InputField inputBox;
 
-    [SerializeField] private UnityEvent onValidate;
+    [SerializeField] public UnityEvent onValidate;
 
     public const string MathDayPattern = "^([0]?[0-9]|[12][0-9]|[3][01])$";
     public const string MathMonthPattern = "^([0]?[1-9]|[1][0-2])$";
@@ -111,7 +111,6 @@ public class BirthdateMask : MonoBehaviour
             {
                 RemoveLastNumbers(2);
                 ShowInvalidText("dia inválido");
-                Debug.Log("dia errado");
             }
         }
         else
@@ -135,7 +134,6 @@ public class BirthdateMask : MonoBehaviour
             {
                 RemoveLastNumbers(2);
                 ShowInvalidText("mês inválido");
-                Debug.Log("Mês errado");
             }
         }
         else
@@ -152,20 +150,17 @@ public class BirthdateMask : MonoBehaviour
                 if ((int.Parse(year) < System.DateTime.Now.Year) && (int.Parse(year) > System.DateTime.Now.Year - 130))
                 {
                     onValidate.Invoke();
-                    Debug.Log("Birthdate valid");
                 }
                 else
                 {
                     RemoveLastNumbers(4);
                     ShowInvalidText("ano inválido");
-                    Debug.Log("ano inválido");
                 }
             }
             else
             {
                 RemoveLastNumbers(4);
                 ShowInvalidText("ano inválido");
-                Debug.Log("ano errado");
             }
         }
         if (year.Length > 4)
