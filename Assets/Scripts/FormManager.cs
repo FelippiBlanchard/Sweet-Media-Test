@@ -10,15 +10,47 @@ public class FormManager : MonoBehaviour
     [SerializeField] private string urlAPI;
     [SerializeField] private List<CustomInputField> inputs;
 
+    #region MatchPatternDeclaration
     public const string MatchEmailPattern =
-        @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@"
-        + @"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\."
-        + @"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
-        + @"([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
+    @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@"
+    + @"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\."
+    + @"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+    + @"([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
     public const string MathBirthdatePattern = "^([0]?[0-9]|[12][0-9]|[3][01])[./-]([0]?[1-9]|[1][0-2])[./-]([0-9]{4}|[0-9]{2})$";
+    #endregion
 
     private bool formIsValid;
+    private void Start()
+    {
+        SetValueCheckForEachInputField();
+    }
+    private void SetValueCheckForEachInputField()
+    {
+        foreach (var input in inputs)
+        {
+            switch (input.type)
+            {
+                case TypeInput.Type.FULLNAME:
+                    input.inputBox.onDeselect.AddListener(delegate {
+                        TreatResult(TypeInput.Type.FULLNAME, CheckFullName(input.inputBox.text));
+                    });
+                    break;
 
+                case TypeInput.Type.EMAIL:
+                    input.inputBox.onDeselect.AddListener(delegate {
+                        TreatResult(TypeInput.Type.EMAIL, CheckEmail(input.inputBox.text));
+                    });
+                    break;
+
+                case TypeInput.Type.BIRTHDATE:
+                    input.inputBox.onDeselect.AddListener(delegate {
+                        TreatResult(TypeInput.Type.BIRTHDATE, CheckBirthdate(input.inputBox.text));
+                    });
+                    input.inputBox.onValueChanged.AddListener(delegate { BirthdateMask.instance.ValueChangeCheck(); });
+                    break;
+            }
+        }
+    }
     public void Confirm()
     {
         if (VerifyInputs())
@@ -36,11 +68,13 @@ public class FormManager : MonoBehaviour
         return url;
     }
 
+    #region GetInputs
+    //---------------------GET-INPUTS-REGION-----------------------
     public string GetFullname()
     {
         foreach (var input in inputs)
         {
-            if(input.type == CustomInputField.Type.FULLNAME)
+            if (input.type == TypeInput.Type.FULLNAME)
             {
                 return input.inputBox.text;
             }
@@ -51,7 +85,7 @@ public class FormManager : MonoBehaviour
     {
         foreach (var input in inputs)
         {
-            if (input.type == CustomInputField.Type.EMAIL)
+            if (input.type == TypeInput.Type.EMAIL)
             {
                 return input.inputBox.text;
             }
@@ -62,13 +96,35 @@ public class FormManager : MonoBehaviour
     {
         foreach (var input in inputs)
         {
-            if (input.type == CustomInputField.Type.BIRTHDATE)
+            if (input.type == TypeInput.Type.BIRTHDATE)
             {
                 return input.inputBox.text;
             }
         }
         return null;
     }
+
+    #endregion
+
+
+    #region Notifications
+    //---------------------NOTIFICATIONS-REGION-----------------------
+    private void NotificationValid(TypeInput.Type type)
+    {
+        ValidateInput.instance.SetInputValid(type);
+    }
+    private void NotificationError(TypeInput.Type type, string error)
+    {
+        formIsValid = false;
+        ValidateInput.instance.SetInputInvalid(type, error);
+    }
+
+    #endregion
+
+
+    #region VerifyInputs
+    //---------------------VERIFY-INPUTS-REGION-----------------------
+
     private bool VerifyInputs()
     {
         formIsValid = true;
@@ -79,16 +135,16 @@ public class FormManager : MonoBehaviour
             {
                 switch (input.type)
                 {
-                    case CustomInputField.Type.FULLNAME:
-                        TreatResult("nome", VerifyFullName(input.inputBox.text));
+                    case TypeInput.Type.FULLNAME:
+                        TreatResult(TypeInput.Type.FULLNAME, CheckFullName(input.inputBox.text));
                         break;
 
-                    case CustomInputField.Type.EMAIL:
-                        TreatResult("email", VerifyEmail(input.inputBox.text));
+                    case TypeInput.Type.EMAIL:
+                        TreatResult(TypeInput.Type.EMAIL, CheckEmail(input.inputBox.text));
                         break;
 
-                    case CustomInputField.Type.BIRTHDATE:
-                        TreatResult("birthdate", VerifyBirthdate(input.inputBox.text));
+                    case TypeInput.Type.BIRTHDATE:
+                        TreatResult(TypeInput.Type.BIRTHDATE, CheckBirthdate(input.inputBox.text));
                         break;
                 }
             }
@@ -100,12 +156,13 @@ public class FormManager : MonoBehaviour
         return false;
     }
 
-    private void TreatResult(string type, Result result)
+    private void TreatResult(TypeInput.Type type, Result result)
     {
         switch (result)
         {
             case Result.OK:
                 Debug.Log(type + " está ok");
+                NotificationValid(type);
                 break;
             case Result.INCOMPLETE:
                 NotificationError(type, "incompleto");
@@ -116,18 +173,11 @@ public class FormManager : MonoBehaviour
         }
     }
 
-    private void NotificationError(string type, string error)
+    private Result CheckFullName(string name)
     {
-        formIsValid = false;
-        Debug.Log(type + " está: " + error);
-        //chamar um popup
-    }
-
-    private Result VerifyFullName(string name)
-    {
-        if(name != null)
+        if (name != null)
         {
-            if(name.Split().Length > 1)
+            if (name.Split().Length > 1)
             {
                 return Result.OK;
             }
@@ -138,7 +188,7 @@ public class FormManager : MonoBehaviour
         }
         return Result.NULL;
     }
-    private Result VerifyEmail(string email)
+    private Result CheckEmail(string email)
     {
         if (email != null)
         {
@@ -150,9 +200,9 @@ public class FormManager : MonoBehaviour
         }
         return Result.NULL;
     }
-    private Result VerifyBirthdate(string birthdate)
+    private Result CheckBirthdate(string birthdate)
     {
-        if(birthdate != null)
+        if (birthdate != null)
         {
             if (Regex.IsMatch(birthdate, MathBirthdatePattern))
             {
@@ -163,6 +213,10 @@ public class FormManager : MonoBehaviour
         return Result.NULL;
     }
 
+
+    #endregion
+
+
     public enum Result { NULL, INCOMPLETE, OK}
 
 }
@@ -172,8 +226,6 @@ public class CustomInputField
     [Tooltip("Apenas para visualização do desenvolvedor")]
     public string name;
     public bool required;
-    public Type type;
+    public TypeInput.Type type;
     public TMP_InputField inputBox;
-
-    public enum Type { FULLNAME, EMAIL, BIRTHDATE}
 }
